@@ -1,0 +1,6 @@
+Taller de Monitoreo y Observabilidad - Diseño y Arquitectura de Software
+Equipo: Zero Day
+
+Integrantes:
+- Sofy Alejandra Prada Murillo - sofyprmu@unisabana.edu.co
+

@@ -12,7 +12,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 1,
+  "version": 2,
   "editable": true,
   "graphTooltip": 1,
   "annotations": {
@@ -505,6 +505,134 @@
           },
           "expr": "process_cpu_usage",
           "legendFormat": "{{application}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "row",
+      "title": "Paneles del equipo Zero Day",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Inventario: peticiones por segundo por endpoint",
+      "description": "Panel agregado por el equipo (paso 4.4). Rate de inventario separado por uri: muestra qué operaciones (consulta de stock, reservas, fallas) generan la carga, sin contar /actuator.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (uri) (rate(http_server_requests_seconds_count{application=\"inventario\", uri!~\"/actuator.*\"}[1m]))",
+          "legendFormat": "{{uri}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "SLO disponibilidad POST /api/pedidos (30 min, objetivo 99%)",
+      "description": "Reto opcional 5. Porcentaje de peticiones POST /api/pedidos que no terminan en 5xx en los últimos 30 minutos. Los 404/409 son errores del cliente/negocio y cuentan como respuestas correctas del servicio. Rojo por debajo del 99%.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.99
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "1 - (sum(increase(http_server_requests_seconds_count{application=\"pedidos\", method=\"POST\", uri=\"/api/pedidos\", status=~\"5..\"}[30m])) or vector(0)) / sum(increase(http_server_requests_seconds_count{application=\"pedidos\", method=\"POST\", uri=\"/api/pedidos\"}[30m]))",
+          "legendFormat": "disponibilidad",
           "range": true
         }
       ]
